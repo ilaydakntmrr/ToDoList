@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>To Do List</title>
+    <style>
+        /*CSS kodları*/
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: #cac8c8;
+        }
+
+        h1 {
+            display: inline-block;
+            font-weight: bold;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            background-color: purple;
+            color: #f2f2f2;
+            border-radius: 15px;
+            padding: 0.1em;
+        }
+
+        #taskInput {
+            width: 240px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        #addButton {
+            background-color: rgb(36, 123, 180);
+            color: white;
+            border-radius: 5px;
+            border-color: rgb(36, 123, 180);
+            padding: 4px;
+        }
+
+
+        #taskList {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .taskItem {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .taskItem input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        .taskItem .deleteButton {
+            position: absolute;
+            right: 78.7%;
+            color: white;
+            background-color: red;
+            border-color: red;
+            border-radius: 5px;
+            padding: 2px;
+
+        }
+
+        .completedTask {
+            text-decoration: line-through;
+            color: #999;
+        }
+    </style>
+</head>
+
+<body>
+    <h1> YAPILACAKLAR</h1>
+    <!--Form Ekleme-->
+    <div>
+        <input type="text" id="taskInput" placeholder="Görevinizi girin...">
+        <button id="addButton">Ekle</button>
+    </div>
+    <div class="taskListHolder">
+        <ul id="taskList"></ul>
+    </div>
+
+
+    <script>
+        // Görevleri saklayacak olan dizi tanımlandı
+        let tasks = [];
+
+        // Local Storage fonksiyonu
+        if (localStorage.getItem("tasks")) {
+            tasks = JSON.parse(localStorage.getItem("tasks"));
+            displayTasks();
+        }
+
+        // Yeni görev ekleme fonksiyonu
+        const taskInput = document.getElementById("taskInput");
+        const addButton = document.getElementById("addButton");
+
+        addButton.addEventListener("click", addTask);
+        taskInput.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                addTask();
+            }
+        });
+
+        function addTask() {
+            const task = taskInput.value.toUpperCase();
+            if (task !== "") {
+                tasks.push({ text: task, completed: false });
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+                taskInput.value = "";
+                displayTasks();
+            }
+        }
+
+        // Görevleri listeleme fonksiyonu
+        function displayTasks() {
+            const taskList = document.getElementById("taskList");
+            taskList.innerHTML = "";
+
+            tasks.forEach(function (task, index) {
+                const listItem = document.createElement("li");
+                listItem.classList.add("taskItem");
+
+                const checkbox = document.createElement("input");
+                checkbox.setAttribute("type", "checkbox");
+                checkbox.checked = task.completed;
+                checkbox.addEventListener("change", function () {
+                    tasks[index].completed = checkbox.checked;
+                    localStorage.setItem("tasks", JSON.stringify(tasks));
+                    displayTasks();
+                });
+
+                const taskText = document.createElement("span");
+                if (task.completed) {
+                    taskText.classList.add("completedTask");
+                }
+                taskText.innerText = task.text;
+
+                const deleteButton = document.createElement("button");
+                deleteButton.classList.add("deleteButton");
+                deleteButton.innerText = "Sil";
+                deleteButton.addEventListener("click", function () {
+                    tasks.splice(index, 1);
+                    localStorage.setItem("tasks", JSON.stringify(tasks));
+                    displayTasks();
+                });
+
+                listItem.appendChild(checkbox);
+                listItem.appendChild(taskText);
+                listItem.appendChild(deleteButton);
+                taskList.appendChild(listItem);
+            });
+        }
+    </script>
+
+</body>
+
+</html>
